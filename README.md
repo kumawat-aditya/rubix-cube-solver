@@ -1,118 +1,178 @@
-# Rubik's Cube Solver v2.0.0 _(by aditya kumawat)_
+# Rubik's Cube Solver
 
-`_solve any scramble in seconds_`
+[![C++](https://img.shields.io/badge/language-C%2B%2B17-blue.svg)](https://isocpp.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Algorithm: CFOP](https://img.shields.io/badge/algorithm-CFOP-green.svg)](docs/ARCHITECTURE.md)
 
-![Static Badge](https://img.shields.io/badge/C%2B%2B-language-blue)
+A terminal-based Rubik's Cube solver written in C++17 that uses the **CFOP method** (Cross → F2L → OLL → PLL). The program accepts a scrambled cube state via interactive color-by-color input, solves it across all six possible orientations to find the shortest solution, then walks through each move step-by-step in full ANSI color in the terminal.
 
-## Introduction
+---
 
-Welcome to my Rubik's Cube Solver program! This C.F.O.P (Cross, F2L, OLL, PLL) based solver is designed to efficiently and quickly solve a Rubik's Cube within an astonishing 2 seconds. Whether you're a beginner or an experienced cuber, this program will showcase the power of the C.F.O.P method in solving the cube.
+## Tech Stack
+
+| Component        | Technology                                                          |
+| ---------------- | ------------------------------------------------------------------- |
+| Language         | C++17                                                               |
+| Standard Library | STL (`vector`, `string`, `chrono`, `thread`, `algorithm`, `random`) |
+| Output           | ANSI escape codes (no external GUI library)                         |
+| Build            | `g++` direct compilation (GCC 15+)                                  |
+| Algorithm        | CFOP — Cross, F2L, OLL, PLL                                         |
+
+No third-party libraries or package managers are required.
+
+---
 
 ## Prerequisites
 
-Before using the Rubik's Cube Solver, ensure you have the following:
+- A C++17-capable compiler — GCC 9+ or Clang 9+ recommended
+- A POSIX-compatible terminal with ANSI color support (Linux / macOS Terminal / Windows Terminal)
 
-- A working C++ compiler (e.g., G++) to compile the C++ program.
-- A Rubik's Cube in a solvable state to test the solver.
+---
 
 ## Installation
 
-A. Download direct executable from the link:
+**A. Download direct executable from the link:**
 [DOWNLOAD](https://github.com/kumawat-aditya/rubix-cube-solver/releases/tag/v2.0.0)
 
-B. OR Clone the repository to your local machine or download the source code as a ZIP file.
+OR
 
-```
- git clone https://github.com/kumawat-aditya/rubix-cube-solver.git
-```
+**B. Clone the repository:**
 
-### video guid for the installation
-
-https://github.com/kumawat-aditya/rubix-cube-solver/assets/92208854/ad1c92ea-0dfa-43b7-aecd-30aacb12b60f
-
-## How to Use
-
-1. Compile the rubiks_cube_solver.c file using your preferred C compiler:
-
-```
- g++ -o rubiks_cube_solver rubixmain.cpp Cube.cpp Cross.cpp F2l.cpp Oll.cpp Pll.cpp CubeSolver.cpp miscellaneous.cpp Optimiser.cpp
+```bash
+git clone https://github.com/kumawat-aditya/rubix-cube-solver.git
+cd rubix-cube-solver
 ```
 
-2. Run the compiled executable:
+**Compile all source files:**
 
+```bash
+g++ -std=c++17 -O2 -o rubiks_cube_solver \
+    rubixmain.cpp \
+    Cube.cpp \
+    Cross.cpp \
+    F2l.cpp \
+    Oll.cpp \
+    Pll.cpp \
+    CubeSolver.cpp \
+    miscellaneous.cpp \
+    Optimiser.cpp
 ```
+
+**Run:**
+
+```bash
 ./rubiks_cube_solver
 ```
 
-3. Follow the on-screen instructions to provide the current cube configuration (scramble) in a user-friendly format. For example:
+> A pre-built Linux binary (`rubiks_cube_solver`) is also included in the repository root.
 
-```
-ENTER THE COLORS OF "FACE" SIDE OF THE CUBE:
-    row_0-> b r g
-    row_1-> g b o
-    row_2-> y w b
-    ...
-```
+**video guid for the installation**
 
-4. Sit back and watch the magic happen! The solver will quickly analyze the configuration and display the optimal solution, along with the visualization of each step.
+https://github.com/kumawat-aditya/rubix-cube-solver/assets/92208854/ad1c92ea-0dfa-43b7-aecd-30aacb12b60f
 
-### Check this video tutorial to know how it works...
+---
+
+## How to Use
+
+1. Launch the program. An ASCII banner is printed and the program displays the current cube state (initially blank/default).
+
+2. You are prompted to enter the colors of each face one row at a time. Enter each color as a **single character**:
+
+   | Character | Color  |
+   | --------- | ------ |
+   | `r`       | Red    |
+   | `g`       | Green  |
+   | `b`       | Blue   |
+   | `y`       | Yellow |
+   | `w`       | White  |
+   | `o`       | Orange |
+
+3. Faces are entered in this order: **Face → Right → Back → Left → Top → Bottom**. Top and Bottom have a special row/column ordering to match physical cube orientation — follow the on-screen prompts.
+
+4. After all 54 stickers are entered, the solver validates color counts. If invalid, you are asked to retry.
+
+5. The solver begins, printing a running count of attempted solutions. On completion it displays:
+   - The best solution found (fewest total moves)
+   - Move counts broken down by stage: Cross / F2L / OLL / PLL
+   - Total solve time in milliseconds
+
+6. Press `1` to animate the solution step-by-step (2-second delay between moves) or `0` to exit.
+
+**Check this video tutorial to know how it works...**
 
 https://github.com/kumawat-aditya/rubix-cube-solver/assets/92208854/d5439d2c-d5a7-4c32-bf5a-bc98b07f15c7
 
-## Notations
+---
 
-In order to effectively use the Rubik's Cube solver program, it's important to understand the notations used to describe the different moves and rotations of the cube. The following symbols represent the basic movements:
+## Move Notation
 
-    F: Front face clockwise
-    FP: Front face counterclockwise
-    B: Back face clockwise
-    BP: Back face counterclockwise
-    U: Upper face clockwise
-    UP: Upper face counterclockwise
-    D: Down face clockwise
-    DP: Down face counterclockwise
-    L: Left face clockwise
-    LP: Left face counterclockwise
-    R: Right face clockwise
-    RP: Right face counterclockwise
+The solution output uses standard Rubik's Cube notation:
 
-Each of these movements can be performed by appending an apostrophe to its symbol for the counterclockwise direction.
-Example
+| Notation          | Meaning                      |
+| ----------------- | ---------------------------- |
+| `F`               | Front face clockwise         |
+| `FP`              | Front face counter-clockwise |
+| `F2`              | Front face 180°              |
+| `R` / `RP` / `R2` | Right face CW / CCW / 180°   |
+| `B` / `BP` / `B2` | Back face CW / CCW / 180°    |
+| `L` / `LP` / `L2` | Left face CW / CCW / 180°    |
+| `U` / `UP` / `U2` | Upper face CW / CCW / 180°   |
+| `D` / `DP` / `D2` | Down face CW / CCW / 180°    |
+| `M` / `MP`        | Middle slice CW / CCW        |
+| `E` / `EP`        | Equatorial slice CW / CCW    |
+| `S` / `SP`        | Standing slice CW / CCW      |
 
-To illustrate, let's say you want to rotate the front face clockwise and then the upper face counterclockwise. You would use the following sequence of notations:
+---
 
-    F - Rotate the front face clockwise.
-    UP - Rotate the upper face counterclockwise.
+## Project Structure
 
-These notations allow you to describe the steps needed to solve the Rubik's Cube using the solver program.
+```
+rubix-cube-solver/
+├── rubixmain.cpp          # Entry point — wires CubeSolver, measures time, prints result
+│
+├── Cube.h / Cube.cpp      # Base class: cube state, all 18 face rotations, 6 whole-cube
+│                          #   reorientations, color-validated input, terminal display
+│
+├── CubeSolver.h / .cpp    # Orchestrator: multi-start search over all 6 axes,
+│                          #   holds best solution vectors, animated step printing
+│
+├── Cross.h / Cross.cpp    # Stage 1 — bottom-cross solver (inherits Cube)
+├── F2l.h / F2l.cpp        # Stage 2 — first-two-layers solver (inherits Cube)
+├── Oll.h / Oll.cpp        # Stage 3 — orientation of last layer (inherits Cube)
+├── Pll.h / Pll.cpp        # Stage 4 — permutation of last layer (inherits Cube)
+│
+├── Optimiser.h / .cpp     # Static utility: collapses adjacent redundant moves
+│
+├── colors.h               # ANSI escape-code macros (foreground, background, style)
+├── rotationAliases.h      # Preprocessor aliases mapping F/R/B/L/… to method calls
+├── heading.h              # ASCII-art title rendering for the CLI splash screen
+├── miscellaneous.h / .cpp # Terminal utilities: clearLines(), set_font_color(), ch_to_clr()
+│
+├── rubiks_cube_solver     # Pre-built Linux x86-64 binary
+├── cube solver tutorial/  # Video walkthroughs (.mp4 / .GIF)
+└── demo-screenshots/      # Demo video clip
+```
 
-For a more comprehensive guide on Rubik's Cube notations and advanced techniques, you can refer to https://ruwix.com/the-rubiks-cube/notation/.
+---
 
-## Features
+## Quick Links
 
-- Fast Solver: The program utilizes advanced algorithms and optimizations to achieve a blazingly fast solve time of just 2 seconds. It showcases the efficiency of the C.F.O.P method.
-- Interactive Interface: The solver comes with an interactive command-line interface that guides you through the solving process. It displays step-by-step solutions and provides real-time feedback.
-- Random Scramble: Test the solver's prowess by providing a random cube scramble. The program will quickly analyze the cube's configuration and output the optimal solution.
-- Solution Visualization: The program visualizes the cube's movement for each step of the solution, allowing you to understand the solving process better.
-- User-Friendly: Whether you're a beginner or an experienced cuber, the solver is designed to be user-friendly and intuitive.
+- [Architecture & Design](docs/ARCHITECTURE.md)
+- [CFOP Method Reference](https://ruwix.com/the-rubiks-cube/cfop-fridrich-method/)
 
-## C.F.O.P Method
+---
 
-The C.F.O.P method (Cross, F2L, OLL, PLL) is a popular and widely used solving technique in the world of speedcubing. It involves four main steps:
+## Environment Variables
 
-- Cross: Create a cross on one side of the cube, usually starting with the white face.
-- F2L (First Two Layers): Solve the first two layers of the cube simultaneously by pairing corner-edge pieces.
-- OLL (Orientation of Last Layer): Orient the last layer so that all the pieces have the correct color on the top face.
-- PLL (Permutation of Last Layer): Permute the last layer's pieces to fully solve the cube.
+This project does not use environment variables or configuration files. All runtime behavior is controlled through interactive stdin prompts.
+
+---
 
 ## Acknowledgments
 
 Special thanks to the [RUWIX](https://ruwix.com/) community for their valuable insights and contributions to the C.F.O.P method. This program would not have been possible without the collective efforts of cubers worldwide.
 
-## Contact
-
-If you have any questions, suggestions, or encounter any issues with the program, feel free to contact me at kumawataditya105@gmail.com.
+---
 
 ## License
 
